@@ -120,11 +120,41 @@ app.get("/users/:id",async(req:Request,res:Response)=>{
         res.status(200).json({
           success:true,
           message:"data found",
-          data:result.rows
+          data:result.rows[0] 
         })
       }
   } catch (error) {
     res.send({message:"send feadback"})
+  }
+})
+
+
+//update user
+app.put("/users/:id",async(req:Request,res:Response)=>{
+  const id=req.params.id;
+  const{name,email}=req.body;
+  try {
+    const result=await pool.query(`
+      UPDATE users SET name=$1,email=$2 WHERE id=$3 RETURNING *
+      `,[name,email,id])
+      if(result.rows.length===0){
+        res.status(404).json({
+          success:false,
+          message:"user not found"
+        })
+      }else{
+        res.status(201).json({
+          success:true,
+          message:"User is updated!",
+          updatedData:result.rows
+        })
+      }
+  } catch (error:any) {
+    res.status(500).json({
+      success:false,
+      message:error.message,
+      details:error
+    })
   }
 })
 
