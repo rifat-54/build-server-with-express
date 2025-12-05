@@ -13,8 +13,7 @@ app.use(express.json())
 
 //DB
 const pool=new Pool({
-  connectionString:`postgresql://neondb_owner:npg_Mt6nZVQvbG9D@ep-broad-frog-adnr4d4a-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-`
+  connectionString:`${process.env.CONNECTION_STR}`
 })
 
 
@@ -52,14 +51,83 @@ app.get('/', (req:Request, res:Response) => {
   res.send('Hello next level developer!')
 })
 
-app.post("/",(req:Request,res:Response)=>{
-    console.log(req.body);
+app.post("/users",async(req:Request,res:Response)=>{
+    // console.log(req.body);
+    const {name,email}=req.body;
+   
+
+  try {
+     const result=await pool.query(
+      `INSERT INTO users(name,email) VALUES($1,$2) RETURNING *`,[name,email]
+  )
 
    res.status(201).json({
     success:true,
-    message:"api is working"
+    message:"data inserted successfully!",
+    data:result.rows[0]
    })
+  
+  } catch (error) {
+     res.status(500).json({
+    success:false,
+    message:"data not inserted!"
+   })
+  }
+
+  
 })
+
+
+// get all users
+
+app.get("/users",async(req:Request,res:Response)=>{
+  
+
+    try {
+      const result=await pool.query(`
+    SELECT * FROM users
+    `)
+        res.status(200).json({
+          succcess:true,
+          message:"alll users data",
+          data:result.rows
+        })
+
+    } catch (error:any) {
+      res.status(500).json({
+        success:false,
+        message:error.message,
+        details:error
+      })
+    }
+    // console.log("get user ");
+})
+
+// get a single user
+app.get("/users/:id",async(req:Request,res:Response)=>{
+  const id=req.params.id
+  try {
+    const result=await pool.query(`
+      SELECT * FROM users WHERE id=$1
+      `,[id])
+      console.log(result);
+      if(result.rows.length===0){
+        res.status(404).json({
+          success:false,
+          message:"data not found"
+        })
+      }else{
+        res.status(200).json({
+          success:true,
+          message:"data found",
+          data:result.rows
+        })
+      }
+  } catch (error) {
+    res.send({message:"send feadback"})
+  }
+})
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
