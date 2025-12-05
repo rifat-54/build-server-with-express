@@ -128,6 +128,33 @@ app.get("/users/:id",async(req:Request,res:Response)=>{
   }
 })
 
+// delete user
+app.delete("/users/:id",async(req:Request,res:Response)=>{
+  const id=req.params.id;
+  try {
+    const result=await pool.query(`DELETE FROM users WHERE id=$1`,[id])
+    console.log(result);
+    if(result.rowCount===1){
+      res.status(403).json({
+        success:true,
+        message:"user successfully delated!",
+        data:null
+      })
+    }else{
+      res.status(404).json({
+        success:false,
+        message:"user not found!"
+      })
+    }
+  } catch (error:any) {
+    res.status(500).json({
+      success:false,
+      message:error.message,
+      details:error
+    })
+  }
+})
+
 
 //update user
 app.put("/users/:id",async(req:Request,res:Response)=>{
@@ -157,6 +184,56 @@ app.put("/users/:id",async(req:Request,res:Response)=>{
     })
   }
 })
+
+
+//todos crud
+
+app.post("/todos",async(req:Request,res:Response)=>{
+  const {user_id,title}=req.body;
+  console.log(user_id,title);
+  try {
+    const result=await pool.query(`
+      INSERT INTO todos(user_id,title) VALUES($1, $2) RETURNING *
+      `,[user_id,title])
+
+      // console.log(result);
+      res.status(201).json({
+        success:true,
+        message:"Todo created!",
+        data:result.rows
+      })
+
+  } catch (error:any) {
+    res.status(500).json({
+      success:false,
+      message:error.message
+    })
+  }
+})
+
+//get todo
+
+app.get("/todos",async(req:Request,res:Response)=>{
+  try {
+    const result=await pool.query(`
+      SELECT * FROM todos
+      `)
+
+      res.status(200).json({
+          succcess:true,
+          message:"all todos data",
+          data:result.rows
+        })
+
+  } catch (error:any) {
+    res.status(500).json({
+        success:false,
+        message:error.message,
+        details:error
+      })
+  }
+})
+
 
 
 app.listen(port, () => {
