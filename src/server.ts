@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express"
 import{Pool} from "pg"
 import dotenv from "dotenv"
 import path from "path"
+import { writeLogger } from "./helper/writeLogger"
 const app = express()
 const port = 5000
 
@@ -50,7 +51,9 @@ initDB()
 //? middle were
 
 const logger=(req:Request,res:Response,next:NextFunction)=>{
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}\n`);
+  const text=`[${new Date().toISOString()}] ${req.method} ${req.path}\n`;
+  console.log(text);
+  writeLogger(text)
   next()
 }
 
