@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express"
 import { pool } from "../../config.ts/db";
 import { userController } from "./user.controller";
+import logger from "../../middleware/logger";
+import auth from "../../middleware/auth";
 
 const router=express.Router()
 
@@ -8,7 +10,7 @@ const router=express.Router()
 router.post("/",userController.createUser)
 
 //app.get("/users/")
-router.get("/",userController.getUser)
+router.get("/",logger,auth(),userController.getUser)
 
 //app.get("/users/:id")
 router.get("/:id",userController.getSingleUser)
