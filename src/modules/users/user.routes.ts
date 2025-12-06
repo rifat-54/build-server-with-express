@@ -4,29 +4,19 @@ import { userController } from "./user.controller";
 
 const router=express.Router()
 
+//app.post("/users/")
 router.post("/",userController.createUser)
 
-router.get("/",async(req:Request,res:Response)=>{
-  
+//app.get("/users/")
+router.get("/",userController.getUser)
 
-    try {
-      const result=await pool.query(`
-    SELECT * FROM users
-    `)
-        res.status(200).json({
-          succcess:true,
-          message:"alll users data",
-          data:result.rows
-        })
+//app.get("/users/:id")
+router.get("/:id",userController.getSingleUser)
 
-    } catch (error:any) {
-      res.status(500).json({
-        success:false,
-        message:error.message,
-        details:error
-      })
-    }
-    // console.log("get user ");
-})
+//app.put("/users/:id")
+router.put("/:id",userController.updateUser)
+
+//app.delete("/users/:id");
+router.delete("/:id",userController.deleteUser)
 
 export const userRoutes=router;
