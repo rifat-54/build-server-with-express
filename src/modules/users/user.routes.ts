@@ -10,7 +10,7 @@ const router=express.Router()
 router.post("/",userController.createUser)
 
 //app.get("/users/")
-router.get("/",logger,auth(),userController.getUser)
+router.get("/",logger,auth("Admin"),userController.getUser)
 
 //app.get("/users/:id")
 router.get("/:id",userController.getSingleUser)
